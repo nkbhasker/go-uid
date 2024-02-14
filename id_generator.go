@@ -9,29 +9,29 @@ import (
 var startTime = time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC)
 
 type IdGenerator interface {
-	Next(object string) (Identifier, error)
+	Next(kind string) (Identifier, error)
 }
 
 type idGenerator struct {
-	flake *sonyflake.Sonyflake
+	*sonyflake.Sonyflake
 }
 
 func NewIdGenerator() IdGenerator {
 	return &idGenerator{
-		flake: sonyflake.NewSonyflake(sonyflake.Settings{
+		sonyflake.NewSonyflake(sonyflake.Settings{
 			StartTime: startTime,
 		}),
 	}
 }
 
-func (i *idGenerator) Next(object string) (Identifier, error) {
-	uid, err := i.flake.NextID()
+func (i *idGenerator) Next(kind string) (Identifier, error) {
+	uid, err := i.NextID()
 	if err != nil {
 		return nil, err
 	}
 
 	return NewIdentifier(
-		object,
+		kind,
 		uid,
 		timestamp(uid),
 	), nil

@@ -20,28 +20,28 @@ type Identifier interface {
 	driver.Valuer
 	schema.GormDataTypeInterface
 	migrator.GormDataTypeInterface
-	Object() string
+	Kind() string
 	Uid() int64
 	Timestamp() time.Time
 	String() string
 }
 
 type identifier struct {
-	object    string
+	kind      string
 	uid       int64
 	timestamp time.Time
 }
 
-func NewIdentifier(object string, uid uint64, timestamp time.Time) Identifier {
+func NewIdentifier(kind string, uid uint64, timestamp time.Time) Identifier {
 	return &identifier{
-		object:    object,
+		kind:      kind,
 		uid:       int64(uid),
 		timestamp: timestamp,
 	}
 }
 
-func (id identifier) Object() string {
-	return id.object
+func (id identifier) Kind() string {
+	return id.kind
 }
 
 func (id identifier) Uid() int64 {
@@ -53,7 +53,7 @@ func (id identifier) Timestamp() time.Time {
 }
 
 func (id identifier) String() string {
-	return fmt.Sprintf("%s_%d", id.object, id.uid)
+	return fmt.Sprintf("%s_%d", id.kind, id.uid)
 }
 
 func (id identifier) Value() (driver.Value, error) {
@@ -68,7 +68,7 @@ func (id *identifier) UnmarshalJSON(data []byte) error {
 	if string(data) == "null" {
 		return nil
 	}
-	_id, err := FromObjectId(string(data))
+	_id, err := FromIdString(string(data))
 	if err != nil {
 		return err
 	}
@@ -85,26 +85,26 @@ func (identifier) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	return "bigint"
 }
 
-func FromObjectId(str string) (*identifier, error) {
+func FromIdString(str string) (*identifier, error) {
 	idParts := strings.Split(str, "_")
 	if len(idParts) != 2 {
 		return nil, errors.New("invalid str")
 	}
 
-	object := idParts[0]
+	kind := idParts[0]
 	uid, err := strconv.ParseInt(idParts[1], 10, 64)
 	if err != nil {
 		return nil, err
 	}
 
-	return FromUid(object, uid), nil
+	return FromUid(kind, uid), nil
 }
 
-func FromUid(object string, uid int64) *identifier {
+func FromUid(kind string, uid int64) *identifier {
 	timestamp := Timestamp(uid)
 	return &identifier{
 		uid:       uid,
-		object:    object,
+		kind:      kind,
 		timestamp: timestamp,
 	}
 }

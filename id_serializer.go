@@ -27,7 +27,7 @@ func (idSerializer) Scan(ctx context.Context, field *schema.Field, dst reflect.V
 		return errors.New("invalid type")
 	}
 
-	id := FromUid(field.Tag.Get("object"), dbId)
+	id := FromUid(field.Tag.Get("kind"), dbId)
 	err := field.Set(ctx, dst, id)
 	if err != nil {
 		return err

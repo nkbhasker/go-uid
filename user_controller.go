@@ -54,7 +54,7 @@ func (c *userController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (c *userController) GetUser(w http.ResponseWriter, r *http.Request) {
 	userId := chi.URLParam(r, "id")
-	id, err := FromObjectId(userId)
+	id, err := FromIdString(userId)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
